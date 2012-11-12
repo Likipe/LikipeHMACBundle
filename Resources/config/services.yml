@@ -1,0 +1,8 @@
+services:
+  hmac.security.authentication.provider:
+    class:  Likipe\HMACBundle\Security\Authentication\Provider\HMACProvider
+    arguments: ['']
+
+  hmac.security.authentication.listener:
+    class:  Likipe\HMACBundle\Security\Firewall\HMACListener
+    arguments: [@security.context, @security.authentication.manager, @hmac.requestInfoProvider, @hmac.nonceValidator]

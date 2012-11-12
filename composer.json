@@ -1,0 +1,27 @@
+{
+	"name": "likipe/hmac-bundle",
+	"type": "symfony-bundle",
+	"description": "Symfony bundle which provides the boilerplate for dealing with HMAC Authorization.",
+	"keywords": ["bundle", "hmac"],
+	"homepage": "http://github.com/Likipe/HMACBundle",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Martin Wernståhl",
+			"email": "m4rw3r@gmail.com"
+		}
+	],
+	"require": {
+		"php": ">=5.3.2"
+	},
+	"require-dev": {
+		"symfony/symfony": "dev-master"
+	},
+	"autoload": {
+		"psr-0": {
+			"Likipe\\HMACBundle": ""
+		}
+	},
+	"minimum-stability": "dev",
+	"target-dir": "Likipe/HMACBundle"
+}

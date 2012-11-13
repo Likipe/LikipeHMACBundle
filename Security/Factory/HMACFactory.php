@@ -18,7 +18,8 @@ class HMACFactory implements SecurityFactoryInterface
 		;
 		
 		$listenerId = 'security.authentication.listener.hmac.'.$id;
-		$listener = $container->setDefinition($listenerId, new DefinitionDecorator('hmac.security.authentication.listener'));
+		$listener = $container->setDefinition($listenerId, new DefinitionDecorator('hmac.security.authentication.listener'))
+			->replaceArgument(3, new Reference($config['nonceValidatorService']));
 		
 		return array($providerId, $listenerId, $defaultEntryPoint);
 	}
@@ -35,6 +36,8 @@ class HMACFactory implements SecurityFactoryInterface
 	
 	public function addConfiguration(NodeDefinition $node)
 	{
-		
+		$node->children()
+			->scalarNode('nonceValidatorService')
+			->end();
 	}
 }

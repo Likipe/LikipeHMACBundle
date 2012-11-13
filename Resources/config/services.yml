@@ -5,4 +5,4 @@ services:
 
   hmac.security.authentication.listener:
     class:  Likipe\HMACBundle\Security\Firewall\HMACListener
-    arguments: [@security.context, @security.authentication.manager, @hmac.requestInfoProvider, @hmac.nonceValidator]
+    arguments: [@security.context, @security.authentication.manager, @hmac.requestInfoProvider, '']

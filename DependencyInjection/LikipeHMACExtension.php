@@ -14,5 +14,10 @@ class LikipeHMACExtension extends Extension
 		$loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
 		
 		$loader->load('services.yml');
+		
+		/* Default implementation for the RequestInfoProviderInterface */
+		if( ! $container->has('hmac.requestInfoProvider')) {
+			$container->register('hmac.requestInfoProvider', 'Likipe\HMACBundle\RequestInfoProvider\DefaultRequestInfoProvider');
+		}
 	}
 }

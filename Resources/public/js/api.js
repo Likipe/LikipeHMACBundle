@@ -1135,9 +1135,13 @@ var LikipeHMAC = (function($) {
 		};
 	}(CryptoJS));
 	
-	var secret     = '';
-	var identifier = '';
-	var doDebug    = false;
+	var secret         = '';
+	var identifier     = '';
+	var nonceGenerator = null;
+	var doDebug        = false;
+	/* Ajax */
+	var ajaxBeforeSend = function() {};
+	var ajaxComplete   = function() {};
 	
 	
 	var consoleLog = function(message) {
@@ -1224,7 +1228,7 @@ var LikipeHMAC = (function($) {
 		}
 		
 		var port  = window.location.port;
-		var nonce = createNonce();
+		var nonce = nonceGenerator();
 		var body  = typeof settings.data !== 'undefined' ? settings.data.toString() : '';
 		
 		if(port == null || typeof port === 'string' && port.length == 0) {
@@ -1266,9 +1270,17 @@ var LikipeHMAC = (function($) {
 				consoleError("LikipeHMAC: Setting the API key again is not allowed.");
 			};
 		},
+		setNonceGenerator: function(generator) {
+			nonceGenerator = generator;
+		},
 		setDebug: function(debug) {
 			doDebug = debug;
 		},
+		
+		nonce_generators: {
+			default: createNonce
+		},
+		
 		ajax: function(url, settings) {
 			debugLog("Wrapping .ajax()");
 			
@@ -1285,19 +1297,44 @@ var LikipeHMAC = (function($) {
 				settings.beforeSend = function(jqXHR, settings) {
 					var ret = oldBeforeSend(jqXHR, settings);
 					
+					ajaxBeforeSend(jqXHR, settings);
 					signRequest(jqXHR, settings);
 					
-					return ret
+					return ret;
 				};
 			}
 			else {
-				settings.beforeSend = signRequest;
+				settings.beforeSend = function(jqXHR, settings) {
+					ajaxBeforeSend(jqXHR, settings);
+					signRequest(jqXHR, settings);
+				};
+			}
+			
+			if(settings.hasOwnProperty('complete')) {
+				var oldComplete = settings.complete;
+				
+				settings.complete = function(jqXHR, settings) {
+					var ret = oldComplete(jqXHR, settings);
+					
+					ajaxComplete(jqXHR, settings);
+					
+					return ret;
+				};
+			}
+			else {
+				settings.complete = ajaxComplete;
 			}
 			
 			settings.cache  = false;
 			settings.global = false;
 			
 			return $.ajax(url, settings);
+		},
+		ajaxSend: function(callback) {
+			ajaxBeforeSend = callback;
+		},
+		ajaxComplete: function(callback) {
+			ajaxComplete = callback;
 		},
 		getScript: function(url, callback) {
 			return exports.get(url, undefined, callback, "script");
@@ -1325,6 +1362,9 @@ var LikipeHMAC = (function($) {
 			});
 		};
 	});
+	
+	/* Default nonce generator */
+	nonceGenerator = createNonce;
 	
 	return exports;
 })(jQuery);

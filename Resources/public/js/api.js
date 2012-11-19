@@ -1325,7 +1325,7 @@ var LikipeHMAC = (function($) {
 				settings.complete = ajaxComplete;
 			}
 			
-			settings.cache  = false;
+			settings.cache  = true;  /* Prevent jQuery from adding ?_={TIMESTAMP} to the URL */
 			settings.global = false;
 			
 			return $.ajax(url, settings);

@@ -30,6 +30,7 @@ class MemcachedNonceValidator extends AbstractNonceValidator
 	public function __construct(MemcachedObject $memcached, $keyPrefix, $maxAge = 10000  /* 10 seconds */)
 	{
 		$this->memcached = $memcached;
+		$this->keyPrefix = $keyPrefix;
 		$this->maxAge    = $maxAge;
 		$this->expires   = 2 * max(ceil($maxAge / 1000), 1);
 	}

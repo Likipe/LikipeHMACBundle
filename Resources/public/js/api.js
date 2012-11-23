@@ -1142,6 +1142,8 @@ var LikipeHMAC = (function($) {
 	/* Ajax */
 	var ajaxBeforeSend = function() {};
 	var ajaxComplete   = function() {};
+	/* To prevent endless recursive looping in case $.ajax is replaced with LikipeHMAC.ajax */
+	var jQueryAjax     = $.ajax;
 	
 	
 	var consoleLog = function(message) {
@@ -1328,7 +1330,7 @@ var LikipeHMAC = (function($) {
 			settings.cache  = true;  /* Prevent jQuery from adding ?_={TIMESTAMP} to the URL */
 			settings.global = false;
 			
-			return $.ajax(url, settings);
+			return jQueryAjax(url, settings);
 		},
 		ajaxSend: function(callback) {
 			ajaxBeforeSend = callback;

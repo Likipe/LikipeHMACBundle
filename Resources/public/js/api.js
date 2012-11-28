@@ -1152,12 +1152,6 @@ var LikipeHMAC = (function($) {
 		}
 	};
 	
-	var consoleError = function(message) {
-		if(console.error) {
-			console.error("LikipeHMAC: " + message);
-		}
-	}
-	
 	var debugLog = function(message) {
 		if(doDebug) {
 			consoleLog(message);
@@ -1224,9 +1218,7 @@ var LikipeHMAC = (function($) {
 	var signRequest = function(jqXHR, settings) {
 		debugLog("Executing beforeSend");
 		if(secret.length == 0 || identifier.length == 0) {
-			consoleError("Cannot generate header, credentials not set.");
-			
-			return;
+			throw new Error("Cannot generate header, credentials not set.");
 		}
 		
 		var port  = window.location.port;
@@ -1261,16 +1253,18 @@ var LikipeHMAC = (function($) {
 	
 	var exports = {
 		setCredentials: function(hmac_id, hmac_key) {
-			secret     = hmac_key.toString();
-			identifier = hmac_id.toString();
-			
-			if(identifier.match(/"/)) {
-				consoleError("LikipeHMAC: Identifier contains \" which is a forbidden character.");
+			if( ! hmac_id instanceof String) {
+				throw new Error("LikipeHMAC: Identifier must be a string.");
+			}
+			if( ! hmac_key instanceof String) {
+				throw new Error("LikipeHMAC: Key must be a string.");
+			}
+			if((new RegExp(/"/)).test(hmac_id)) {
+				throw new Error("LikipeHMAC: Identifier contains \" which is a forbidden character.");
 			}
 			
-			exports.setCredentials = function(hmac_id, hmac_key) {
-				consoleError("LikipeHMAC: Setting the API key again is not allowed.");
-			};
+			secret     = hmac_key.toString();
+			identifier = hmac_id.toString();
 		},
 		setNonceGenerator: function(generator) {
 			nonceGenerator = generator;

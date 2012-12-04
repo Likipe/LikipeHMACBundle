@@ -5,8 +5,11 @@ var LikipeHMAC = (function($, CryptoJS) {
 	var nonceGenerator = null;
 	var doDebug        = false;
 	/* Ajax */
-	var ajaxBeforeSend = function() {};
-	var ajaxComplete   = function() {};
+	var ajaxCallbacks  = {
+		beforeSend: function() {},
+		complete:   function() {},
+		error:      function() {}
+	};
 	/* To prevent endless recursive looping in case $.ajax is replaced with LikipeHMAC.ajax */
 	var jQueryAjax     = $.ajax;
 	
@@ -115,6 +118,7 @@ var LikipeHMAC = (function($, CryptoJS) {
 		);
 	};
 	
+	ajaxCallbacks['beforeSend'] = signRequest;
 	
 	var exports = {
 		setCredentials: function(hmac_id, hmac_key) {
@@ -152,39 +156,23 @@ var LikipeHMAC = (function($, CryptoJS) {
 			
 			settings = typeof settings !== 'undefined' ? settings : {};
 			
-			if(settings.hasOwnProperty('beforeSend')) {
-				var oldBeforeSend = settings.beforeSend;
+			$.each(['complete', 'beforeSend', 'error'], function(i, prop) {
+				if(settings.hasOwnProperty(prop)) {
+					var old = settings[prop];
 				
-				settings.beforeSend = function(jqXHR, settings) {
-					var ret = oldBeforeSend(jqXHR, settings);
+					settings[prop] = function() {
+						var ret = old.apply(this, arguments);
+						ajaxCallbacks[prop].apply(this, arguments);
 					
-					ajaxBeforeSend(jqXHR, settings);
-					signRequest(jqXHR, settings);
-					
-					return ret;
-				};
-			}
-			else {
-				settings.beforeSend = function(jqXHR, settings) {
-					ajaxBeforeSend(jqXHR, settings);
-					signRequest(jqXHR, settings);
-				};
-			}
-			
-			if(settings.hasOwnProperty('complete')) {
-				var oldComplete = settings.complete;
-				
-				settings.complete = function(jqXHR, settings) {
-					var ret = oldComplete(jqXHR, settings);
-					
-					ajaxComplete(jqXHR, settings);
-					
-					return ret;
-				};
-			}
-			else {
-				settings.complete = ajaxComplete;
-			}
+						return ret;
+					};
+				}
+				else {
+					settings[prop] = function() {
+						return ajaxCallbacks[prop].apply(this, arguments);
+					};
+				}
+			});
 			
 			settings.cache  = true;  /* Prevent jQuery from adding ?_={TIMESTAMP} to the URL */
 			settings.global = false;
@@ -192,10 +180,16 @@ var LikipeHMAC = (function($, CryptoJS) {
 			return jQueryAjax(url, settings);
 		},
 		ajaxSend: function(callback) {
-			ajaxBeforeSend = callback;
+			ajaxCallbacks['beforeSend'] = function() {
+				callback.apply(this, arguments);
+				signRequest.apply(this, arguments);
+			};
 		},
 		ajaxComplete: function(callback) {
-			ajaxComplete = callback;
+			ajaxCallbacks['complete'] = callback;
+		},
+		ajaxError: function(callback) {
+			ajaxCallbacks['error'] = callback;
 		},
 		getScript: function(url, callback) {
 			return exports.get(url, undefined, callback, "script");

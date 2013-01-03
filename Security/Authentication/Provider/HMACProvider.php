@@ -27,6 +27,7 @@ class HMACProvider implements AuthenticationProviderInterface
 		if($hmac === $token->mac) {
 			$tok = new HMACToken($user->getRoles());
 			$tok->setUser($user);
+			$tok->setAuthenticated(true);
 			
 			return $tok;
 		}

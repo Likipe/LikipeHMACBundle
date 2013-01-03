@@ -10,13 +10,6 @@ class HMACToken extends AbstractToken
 	public $reqStr;
 	public $hmac;
 	
-	public function __construct(array $roles = array())
-	{
-		parent::__construct($roles);
-		
-		$this->setAuthenticated(count($roles) > 0);
-	}
-	
 	public function getCredentials()
 	{
 		return '';

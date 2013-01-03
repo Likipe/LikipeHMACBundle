@@ -37,7 +37,7 @@ class MemcachedNonceValidator extends AbstractNonceValidator
 	
 	public function nonceIsValid($macId, $timestamp, $random)
 	{
-		if((floor(microtime(true) * 1000) - $timestamp) > $this->maxAge) {
+		if(abs(floor(microtime(true) * 1000) - $timestamp) > $this->maxAge) {
 			return false;
 		}
 		

@@ -143,7 +143,7 @@ var LikipeHMAC = (function($, CryptoJS) {
 		},
 		
 		nonce_generators: {
-			default: createNonce
+			"default": createNonce
 		},
 		
 		ajax: function(url, settings) {

@@ -6,10 +6,3 @@ services:
   hmac.security.authentication.listener:
     class:  Likipe\HMACBundle\Security\Firewall\HMACListener
     arguments: [@security.context, @security.authentication.manager, @hmac.requestInfoProvider, '']
-
-  security.context.user:
-    class: Symfony\Component\Security\Core\User\UserInterface
-    factory_class:  Likipe\HMACBundle\AuthenticatedUserFactory
-    factory_method: getUser
-    arguments: [@security.context]
-    scope: request
